@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>McDiller | Портал хоррора — Админ-панель</title>
+    <meta name="description" content="McDiller — автор мистических историй и хорроров. Книги, от которых стынет кровь.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #0a0508;
+            --bg-surface: #140c10;
+            --bg-card: rgba(30, 15, 25, 0.55);
+            --accent-red: #8b1e3f;
+            --accent-darkred: #6b2e4a;
+            --accent-gold: #c9a03d;
+            --text-light: #e5dbd0;
+            --text-gray: #aa9a8f;
+            --text-dim: #6b5a52;
+            --border-color: rgba(100, 60, 70, 0.4);
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        body { background: var(--bg-deep); color: var(--text-light); font-family: var(--font-sans); line-height: 1.7; overflow-x: hidden; }
+        ::selection { background: var(--accent-red); color: white; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-red); border-radius: 10px; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(35px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatParticle { 0% { opacity: 0; transform: translateY(100vh) scale(0); } 20% { opacity: 0.7; } 80% { opacity: 0.7; } 100% { opacity: 0; transform: translateY(-10vh) scale(1.3); } }
+        @keyframes pulseLine { 0%, 100% { opacity: 0.3; transform: scaleY(0.6); } 50% { opacity: 1; transform: scaleY(1); } }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s var(--transition); }
+        nav.scrolled { background: rgba(10, 5, 8, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); padding: 0.7rem 2rem; }
+        .logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); text-decoration: none; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: var(--text-gray); text-decoration: none; font-size: 0.8rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; transition: color 0.3s; position: relative; cursor: pointer; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 1px; background: var(--accent-gold); transition: width 0.3s; }
+        .nav-links a:hover { color: var(--accent-gold); }
+        .nav-links a:hover::after { width: 100%; }
+        .menu-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; }
+        .menu-btn span { width: 25px; height: 2px; background: var(--text-light); transition: 0.3s; }
+
+        .hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding: 2rem; }
+        .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 100%, rgba(107, 46, 74, 0.2) 0%, transparent 60%), radial-gradient(ellipse at 20% 40%, rgba(139, 30, 63, 0.1) 0%, transparent 50%), linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-surface) 100%); }
+        .particles { position: absolute; inset: 0; pointer-events: none; }
+        .particle { position: absolute; background: var(--accent-gold); border-radius: 50%; opacity: 0; animation: floatParticle linear infinite; }
+        .hero-content { position: relative; z-index: 2; max-width: 750px; }
+        .hero-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 5px; color: var(--accent-darkred); text-transform: uppercase; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 1s 0.3s forwards; }
+        .hero-title { font-family: var(--font-serif); font-size: clamp(2.8rem, 8vw, 5.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 1s 0.6s forwards; }
+        .hero-title span { color: var(--accent-gold); }
+        .hero-sub { font-size: 1.1rem; color: var(--text-gray); max-width: 550px; margin: 0 auto 2.5rem; opacity: 0; animation: fadeUp 1s 0.9s forwards; }
+        .btn { display: inline-block; padding: 0.9rem 2.3rem; border: 1px solid var(--accent-gold); color: var(--accent-gold); text-decoration: none; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: all 0.4s; position: relative; overflow: hidden; opacity: 0; animation: fadeUp 1s 1.2s forwards; cursor: pointer; background: transparent; }
+        .btn span { position: relative; z-index: 1; }
+        .btn::before { content: ''; position: absolute; inset: 0; background: var(--accent-gold); transform: translateY(100%); transition: transform 0.4s; }
+        .btn:hover { color: var(--bg-deep); }
+        .btn:hover::before { transform: translateY(0); }
+        .scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 1s 1.8s forwards; }
+        .scroll-hint span { font-size: 0.65rem; letter-spacing: 3px; color: var(--text-dim); }
+        .scroll-line { width: 1px; height: 45px; background: linear-gradient(to bottom, var(--accent-red), transparent); animation: pulseLine 2s infinite; }
+        .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
+        .section-header { text-align: center; margin-bottom: 3.5rem; }
+        .section-title { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 0.8rem; }
+        .section-line { width: 60px; height: 2px; background: var(--accent-red); margin: 0 auto; }
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; }
+        .book-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; cursor: pointer; transition: all 0.4s var(--transition); position: relative; overflow: hidden; backdrop-filter: blur(2px); }
+        .book-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(139, 30, 63, 0.2) 0%, transparent 70%); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+        .book-card:hover { transform: translateY(-8px); border-color: var(--accent-red); box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5); }
+        .book-card:hover::before { opacity: 1; }
+        .book-cover { width: 100%; aspect-ratio: 3/4; background: linear-gradient(135deg, #2a1018 0%, #0a0508 100%); border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); position: relative; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .book-cover-text { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700; text-align: center; color: var(--accent-gold); padding: 1rem; line-height: 1.3; z-index: 2; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .book-meta { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .book-name { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-bottom: 0.8rem; }
+        .book-desc { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 1.2rem; line-height: 1.6; }
+        .read-link { color: var(--accent-darkred); font-size: 0.85rem; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.3s; cursor: pointer; }
+        .read-link:hover { color: var(--accent-gold); gap: 0.8rem; }
+        .reader { position: fixed; inset: 0; z-index: 2000; background: var(--bg-deep); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.5s var(--transition); }
+        .reader.active { transform: translateY(0); }
+        .reader-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(10, 5, 8, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); }
+        .reader-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 600; color: var(--accent-gold); }
+        .close-reader { background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; transition: 0.3s; }
+        .close-reader:hover { color: var(--accent-gold); background: rgba(255, 255, 255, 0.05); }
+        .reader-body { flex: 1; overflow-y: auto; }
+        .reader-content { max-width: 750px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .reader-content p { margin-bottom: 1.5rem; text-indent: 2rem; font-size: 1.05rem; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; }
+        .reader-content p:first-of-type { text-indent: 0; }
+        .reader-content p:first-of-type::first-letter { font-family: var(--font-serif); font-size: 3.2rem; float: left; line-height: 0.8; margin-right: 0.7rem; color: var(--accent-gold); font-weight: 700; }
+        .chapter-divider { display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 2.5rem 0; opacity: 0.5; }
+        .chapter-divider span { width: 40px; height: 1px; background: var(--border-color); }
+        .chapter-divider i { width: 6px; height: 6px; border: 1px solid var(--accent-red); transform: rotate(45deg); }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+        .about-text p { margin-bottom: 1rem; color: var(--text-gray); }
+        .about-quote { color: var(--accent-darkred); margin-top: 1rem; font-style: italic; }
+        .contact-box { text-align: center; margin-top: 2rem; }
+        .contact-email { display: inline-block; color: var(--accent-gold); text-decoration: none; font-family: var(--font-mono); font-size: 1rem; border-bottom: 1px dashed var(--accent-gold); padding-bottom: 3px; transition: 0.3s; }
+        footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border-color); margin-top: 3rem; }
+        .footer-logo { font-family: var(--font-serif); font-size: 1.2rem; color: var(--accent-gold); margin-bottom: 0.5rem; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s var(--transition); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 768px) { nav { padding: 1rem; } .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: rgba(10, 5, 8, 0.95); flex-direction: column; padding: 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border-color); } .nav-links.open { display: flex; } .menu-btn { display: flex; } .about-grid { grid-template-columns: 1fr; } .reader-content { padding: 2rem 1.5rem 4rem; } }
+        body.reader-open { overflow: hidden; }
+
+        /* Стили для страницы всех книг */
+        .library-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-deep); z-index: 1500; overflow-y: auto; transform: translateX(100%); transition: transform 0.4s var(--transition); }
+        .library-page.active { transform: translateX(0); }
+        .library-header { position: sticky; top: 0; background: rgba(10, 5, 8, 0.95); backdrop-filter: blur(12px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); z-index: 10; }
+        .library-header h2 { font-family: var(--font-serif); color: var(--accent-gold); }
+        .close-library { background: none; border: none; color: var(--text-dim); font-size: 1.8rem; cursor: pointer; transition: 0.3s; }
+        .close-library:hover { color: var(--accent-gold); }
+        .search-panel { margin-bottom: 2.5rem; background: rgba(20, 12, 16, 0.7); border-radius: 48px; padding: 0.2rem; border: 1px solid var(--border-color); backdrop-filter: blur(8px); display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; justify-content: space-between; }
+        .search-input-wrapper { flex: 3; min-width: 180px; display: flex; align-items: center; padding: 0.2rem 1rem; gap: 0.5rem; }
+        .search-input-wrapper input { background: transparent; border: none; color: var(--text-light); padding: 0.8rem 0; font-size: 0.9rem; width: 100%; outline: none; font-family: var(--font-sans); }
+        .search-input-wrapper input::placeholder { color: var(--text-dim); }
+        .search-btn, .recommend-btn { background: transparent; border: none; color: var(--accent-gold); cursor: pointer; padding: 0 1rem; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px; transition: 0.2s; white-space: nowrap; }
+        .search-btn:hover, .recommend-btn:hover { color: var(--text-light); text-shadow: 0 0 6px var(--accent-gold); }
+        .recommend-btn { border-left: 1px solid var(--border-color); margin-left: 0.5rem; }
+        .search-results-header { display: flex; justify-content: space-between; align-items: baseline; margin: 1rem 0 1.5rem; flex-wrap: wrap; }
+        .clear-search { color: var(--accent-darkred); background: none; border: none; cursor: pointer; font-size: 0.7rem; text-decoration: underline; font-family: var(--font-mono); }
+        .recommended-badge { font-family: var(--font-mono); font-size: 0.7rem; background: var(--accent-red); padding: 0.2rem 0.6rem; border-radius: 20px; color: var(--text-light); letter-spacing: 1px; margin-left: 0.8rem; }
+        .admin-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: all 0.2s ease; }
+        .admin-modal.active { visibility: visible; opacity: 1; }
+        .admin-panel { background: var(--bg-surface); border: 1px solid var(--accent-gold); border-radius: 24px; max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 2rem; color: var(--text-light); box-shadow: 0 25px 40px rgba(0,0,0,0.6); }
+        .admin-panel h2 { font-family: var(--font-serif); color: var(--accent-gold); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .admin-panel h3 { font-size: 1.2rem; margin: 1rem 0 0.8rem; color: var(--accent-darkred); }
+        .admin-panel select, .admin-panel input, .admin-panel textarea { width: 100%; background: #1e1218; border: 1px solid var(--border-color); color: var(--text-light); padding: 8px 12px; border-radius: 10px; font-family: var(--font-sans); margin-bottom: 12px; }
+        .admin-panel textarea { min-height: 120px; }
+        .admin-panel button { background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 8px 18px; border-radius: 40px; cursor: pointer; transition: 0.2s; margin-right: 8px; margin-top: 5px; }
+        .admin-panel button:hover { background: var(--accent-gold); color: var(--bg-deep); }
+        .admin-panel .danger-btn { border-color: var(--accent-red); color: var(--accent-red); }
+        .admin-panel .danger-btn:hover { background: var(--accent-red); color: white; }
+        .chapters-list { margin: 15px 0; border-left: 2px solid var(--accent-red); padding-left: 15px; max-height: 280px; overflow-y: auto; }
+        .chapter-item { background: rgba(255,255,255,0.03); margin: 8px 0; padding: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .chapter-item span { font-weight: 500; flex: 1; cursor: pointer; }
+        .chapter-item button { margin: 0 4px; padding: 4px 10px; font-size: 0.7rem; }
+        .close-admin { float: right; background: none; border: none; font-size: 1.8rem; color: var(--text-dim); cursor: pointer; line-height: 1; }
+        .close-admin:hover { color: var(--accent-gold); }
+        .admin-msg { color: var(--accent-gold); margin: 10px 0; font-size: 0.85rem; }
+        hr { border-color: var(--border-color); margin: 1rem 0; }
+    </style>
+</head>
+<body>
+
+<nav id="navbar">
+    <a href="#" class="logo" id="secretLogo">McDiller</a>
+    <ul class="nav-links" id="navLinks">
+        <li><a id="showLibraryBtn" style="cursor:pointer;">📚 Смотреть книги</a></li>
+        <li><a href="#about">Об авторе</a></li>
+        <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="particles" id="particles"></div>
+    <div class="hero-content">
+        <div class="hero-tag">Авторский портал хоррора</div>
+        <h1 class="hero-title">Истории из <span>темноты</span></h1>
+        <p class="hero-sub">Мистика, страх и необъяснимое. Погрузитесь в мир, где реальность трескается по швам, а кошмары обретают форму.</p>
+        <div class="btn" id="heroLibraryBtn"><span>Открыть библиотеку</span></div>
+    </div>
+    <div class="scroll-hint"><span>Листайте вниз</span><div class="scroll-line"></div></div>
+</section>
+
+<section id="library" class="section" style="display: none;"></section>
+
+<div id="libraryPage" class="library-page">
+    <div class="library-header">
+        <h2>📖 Все книги McDiller</h2>
+        <button class="close-library" id="closeLibraryBtn">✕</button>
+    </div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+        <div class="search-panel">
+            <div class="search-input-wrapper">
+                <span style="color: var(--text-dim);">🔍</span>
+                <input type="text" id="libSearchInput" placeholder="Поиск по названию или ключевому слову..." autocomplete="off">
+            </div>
+            <div style="display: flex;">
+                <button class="search-btn" id="libSearchBtn">НАЙТИ</button>
+                <button class="recommend-btn" id="libRecommendBtn">🎲 РЕКОМЕНДАЦИИ</button>
+            </div>
+        </div>
+        <div id="libSearchStatus" style="font-size:0.8rem; margin-bottom:1rem; color:var(--accent-darkred); text-align:right;"></div>
+        <div class="books-grid" id="libBooksGrid"></div>
+    </div>
+</div>
+
+<div class="chapter-divider"><span></span><i></i><span></span></div>
+
+<section id="about" class="section">
+    <div class="section-header reveal"><h2 class="section-title">Об авторе</h2><div class="section-line"></div></div>
+    <div class="about-grid">
+        <div class="about-text reveal">
+            <p><strong>McDiller</strong> — автор, который не боится заглядывать в самые тёмные уголки человеческого сознания. Мистика, хоррор, необъяснимые события — его стихия.</p>
+            <p>Каждая история — это лабиринт, из которого нет выхода. Читатель не просто наблюдает — он становится частью происходящего. Шорохи за спиной, тени на стенах, куклы с пустыми глазами...</p>
+            <p class="about-quote">«Я пишу не просто страшилки. Я пишу о том, что живёт с нами по соседству — в темноте, в зеркалах, в забытых комнатах.»</p>
+        </div>
+        <div class="about-image reveal" style="display: flex; align-items: center; justify-content: center; font-size: 5rem; color: var(--accent-red); opacity: 0.5;">M</div>
+    </div>
+    <div class="contact-box reveal" id="contact">
+        <a href="mailto:McDillerHistory@gmail.com" class="contact-email">📩 McDillerHistory@gmail.com</a>
+    </div>
+</section>
+
+<footer><div class="footer-logo">McDiller</div><p class="footer-copy">© 2026 Все права защищены. Тьма всегда рядом.</p></footer>
+
+<div class="reader" id="reader"><div class="reader-header"><span class="reader-title" id="readerTitle"></span><button class="close-reader" id="closeReader">✕</button></div><div class="reader-body"><div class="reader-content" id="readerContent"></div></div></div>
+<div id="adminModal" class="admin-modal"><div id="adminPanelContainer"></div></div>
+
+<script>
+    let booksDB = [];
+    const STORAGE_KEY = 'mcdiller_books_data';
+    let currentLibSearch = '';
+    let currentLibRecIds = [];
+
+    function initDemoBooks() {
+        return [
+            { id: "book_1", title: "Шёпот за стеной", meta: "Мистический хоррор / 2024", desc: "Каждую ночь из-за стены доносится шёпот. Но соседняя квартира пустует уже десять лет...", coverText: "Шёпот\nза стеной", chapters: [{ title: "Тишина", content: "Ночь опустилась на город...\n\nАлексей проснулся от шёпота." }, { title: "Сосед", content: "Дверь скрипнула...\nВнутри пахло пылью." }] },
+            { id: "book_2", title: "Кукла в кресле-качалке", meta: "Психологический хоррор / 2025", desc: "Старинная кукла начинает жить своей жизнью. И ей не нравятся новые хозяева.", coverText: "Кукла\nв кресле", chapters: [{ title: "Покупка", content: "Марина купила куклу на рынке...\nПродавец странно усмехнулся." }, { title: "Первая ночь", content: "В три часа ночи кресло заскрипело..." }] }
+        ];
+    }
+
+    function loadData() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(stored) booksDB = JSON.parse(stored);
+        else booksDB = initDemoBooks();
+        saveData();
+    }
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(booksDB)); renderLibraryGrid(); }
+
+    function getRandomCoverText(title) { const lines = title.split(' '); if(lines.length >= 2) return lines[0] + '\n' + lines.slice(1).join(' '); else return title; }
+
+    function createNewBookAuto() {
+        const newId = Date.now().toString() + '-' + Math.random().toString(36).substr(2,6);
+        const newTitle = 'Новая книга';
+        booksDB.push({ 
+            id: newId, title: newTitle, meta: 'Жанр / Год', desc: 'Описание книги...', 
+            coverText: getRandomCoverText(newTitle), chapters: [] 
+        });
+        saveData();
+        return newId;
+    }
+
+    function searchBooks(query, list) { if(!query.trim()) return list; const q = query.toLowerCase(); return list.filter(b => b.title.toLowerCase().includes(q) || (b.meta && b.meta.toLowerCase().includes(q)) || (b.desc && b.desc.toLowerCase().includes(q))); }
+    function getRecommendations(limit, list) { if(!list.length) return []; const shuffled = [...list]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];} return shuffled.slice(0,Math.min(limit,list.length)); }
+
+    function renderLibraryGrid() {
+        const grid = document.getElementById('libBooksGrid');
+        const statusDiv = document.getElementById('libSearchStatus');
+        if(!grid) return;
+        let displayBooks = booksDB;
+        let isRec = false;
+        if(currentLibSearch && currentLibSearch.trim() !== '') { displayBooks = searchBooks(currentLibSearch, booksDB); statusDiv.innerHTML = `🔮 Найдено ${displayBooks.length} книг. <button class="clear-search" id="clearLibSearch">Очистить</button>`; }
+        else if(currentLibRecIds.length > 0) { displayBooks = booksDB.filter(b => currentLibRecIds.includes(b.id)); isRec = true; statusDiv.innerHTML = `✨ Рекомендации. <button class="clear-search" id="clearLibRec">Показать всё</button>`; }
+        else statusDiv.innerHTML = '';
+        if(!displayBooks.length) grid.innerHTML = '<div style="text-align:center; padding:3rem;">🕯️ Ничего не найдено.</div>';
+        else grid.innerHTML = displayBooks.map(book => `
+            <div class="book-card" data-id="${book.id}">
+                <div class="book-cover"><div class="book-cover-text">${escapeHtml(book.coverText || book.title)}</div></div>
+                <div class="book-meta">${escapeHtml(book.meta || '—')}</div>
+                <h3 class="book-name">${escapeHtml(book.title)}${isRec ? '<span class="recommended-badge">рекомендуется</span>' : ''}</h3>
+                <p class="book-desc">${escapeHtml(book.desc || 'Нет описания')}</p>
+                <div class="read-link" data-id="${book.id}">Читать онлайн →</div>
+            </div>
+        `).join('');
+        document.querySelectorAll('#libBooksGrid .book-card').forEach(card => { card.addEventListener('click', (e) => { if(e.target.closest('.read-link')) openReaderById(card.dataset.id); else openReaderById(card.dataset.id); }); });
+        const clearBtn = document.getElementById('clearLibSearch'); if(clearBtn) clearBtn.onclick = () => { currentLibSearch=''; currentLibRecIds=[]; renderLibraryGrid(); };
+        const clearRec = document.getElementById('clearLibRec'); if(clearRec) clearRec.onclick = () => { currentLibSearch=''; currentLibRecIds=[]; renderLibraryGrid(); };
+    }
+
+    function openReaderById(id) { const book = booksDB.find(b=>b.id===id); if(!book) return; document.getElementById('readerTitle').innerText = book.title; const contentDiv = document.getElementById('readerContent'); if(!book.chapters?.length) contentDiv.innerHTML = '<p style="text-align:center;">Главы ещё не добавлены...</p>'; else { let html = `<h2 style="font-family:var(--font-serif);text-align:center;color:var(--accent-gold);">${escapeHtml(book.title)}</h2>`; book.chapters.forEach((ch,idx)=>{ html+=`<h3 style="margin-top:1.5rem;">${escapeHtml(ch.title||`Глава ${idx+1}`)}</h3>`; (ch.content||'').split(/\r?\n/).filter(p=>p.trim()).forEach(p=>html+=`<p>${escapeHtml(p)}</p>`); if(idx!==book.chapters.length-1) html+=`<div class="chapter-divider"><span></span><i></i><span></span></div>`; }); contentDiv.innerHTML = html; } document.getElementById('reader').classList.add('active'); document.body.classList.add('reader-open'); }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    function openLibraryPage() { document.getElementById('libraryPage').classList.add('active'); renderLibraryGrid(); }
+    function closeLibraryPage() { document.getElementById('libraryPage').classList.remove('active'); }
+
+    // Админ-панель (упрощённо с авто-обложкой)
+    let currentEditBookId = null, selectedChapterIndex = null;
+    function renderAdminPanel() { /* ... сохранение функционала с авто-обложкой при создании ... */ 
+        const container = document.getElementById('adminPanelContainer');
+        const bookOptions = booksDB.map(b => `<option value="${b.id}" ${currentEditBookId===b.id?'selected':''}>${escapeHtml(b.title)}</option>`).join('');
+        const selectedBook = currentEditBookId ? booksDB.find(b=>b.id===currentEditBookId) : null;
+        const chaptersHtml = selectedBook?.chapters?.map((ch,idx)=>`<div class="chapter-item"><span onclick="selectChapter('${selectedBook.id}',${idx})">📖 ${escapeHtml(ch.title||'Без названия')}</span><div><button onclick="editChapter('${selectedBook.id}',${idx})">✏️</button><button onclick="deleteChapter('${selectedBook.id}',${idx})" class="danger-btn">🗑️</button></div></div>`).join('')||'<div>Нет глав</div>';
+        container.innerHTML = `<div class="admin-panel"><button class="close-admin" id="closeAdminBtn">&times;</button><h2>🕯️ Админ-панель</h2><div id="adminMsg"></div><h3>Книги</h3><select id="bookSelect"><option value="">— Выбрать —</option>${bookOptions}</select><button id="newBookBtn">➕ Новая книга</button><button id="deleteBookBtn" class="danger-btn">❌ Удалить</button><hr><div id="bookEditArea" style="${selectedBook?'block':'none'}"><h3>Редактировать</h3><input id="editTitle" placeholder="Название" value="${selectedBook?escapeHtml(selectedBook.title):''}"><input id="editMeta" placeholder="Жанр/год" value="${selectedBook?escapeHtml(selectedBook.meta||''):''}"><textarea id="editDesc" placeholder="Описание">${selectedBook?escapeHtml(selectedBook.desc||''):''}</textarea><input id="editCoverText" placeholder="Текст обложки" value="${selectedBook?escapeHtml(selectedBook.coverText||selectedBook.title):''}"><button id="saveMetaBtn">💾 Сохранить</button><h3>Главы</h3><button id="addChapterBtn">➕ Добавить главу</button><div class="chapters-list">${chaptersHtml}</div><div id="chapterEditor" style="display:none; margin-top:1rem;"><h4 id="chapterEditorTitle">Редактор главы</h4><input id="chapterTitleInput" placeholder="Название главы"><textarea id="chapterContentInput" rows="5" placeholder="Текст"></textarea><button id="saveChapterBtn">Сохранить</button><button id="cancelChapterBtn">Отмена</button></div></div></div>`;
+        document.getElementById('closeAdminBtn').onclick = closeAdminModal;
+        document.getElementById('newBookBtn').onclick = () => { const newId = createNewBookAuto(); currentEditBookId = newId; renderAdminPanel(); showAdminMsg('Создана книга с обложкой'); };
+        document.getElementById('deleteBookBtn').onclick = () => { if(currentEditBookId && confirm('Удалить?')){ booksDB=booksDB.filter(b=>b.id!==currentEditBookId); currentEditBookId=null; saveData(); renderAdminPanel(); showAdminMsg('Удалено');}};
+        document.getElementById('bookSelect').onchange = (e) => { currentEditBookId = e.target.value; selectedChapterIndex=null; renderAdminPanel(); };
+        if(selectedBook){
+            document.getElementById('saveMetaBtn').onclick = () => { const book = booksDB.find(b=>b.id===currentEditBookId); if(book){ book.title = document.getElementById('editTitle').value.trim()||'Без имени'; book.meta = document.getElementById('editMeta').value; book.desc = document.getElementById('editDesc').value; book.coverText = document.getElementById('editCoverText').value.trim()||book.title; saveData(); renderAdminPanel(); showAdminMsg('Обновлено');}};
+            document.getElementById('addChapterBtn').onclick = () => { const book = booksDB.find(b=>b.id===currentEditBookId); if(book){ if(!book.chapters) book.chapters=[]; book.chapters.push({title:'Новая глава',content:''}); saveData(); renderAdminPanel(); showAdminMsg('Глава добавлена');}};
+            document.getElementById('saveChapterBtn').onclick = () => { if(selectedChapterIndex!==null){ const book=booksDB.find(b=>b.id===currentEditBookId); if(book&&book.chapters[selectedChapterIndex]){ book.chapters[selectedChapterIndex].title = document.getElementById('chapterTitleInput').value.trim()||'Без названия'; book.chapters[selectedChapterIndex].content = document.getElementById('chapterContentInput').value; saveData(); renderAdminPanel(); showAdminMsg('Сохранено');}}};
+            document.getElementById('cancelChapterBtn').onclick = () => { document.getElementById('chapterEditor').style.display='none'; selectedChapterIndex=null; };
+        }
+        window.selectChapter = (id,idx) => { const book=booksDB.find(b=>b.id===id); if(book&&book.chapters[idx]){ selectedChapterIndex=idx; document.getElementById('chapterTitleInput').value=book.chapters[idx].title||''; document.getElementById('chapterContentInput').value=book.chapters[idx].content||''; document.getElementById('chapterEditorTitle').innerText=`Глава: ${book.chapters[idx].title||'ред.'}`; document.getElementById('chapterEditor').style.display='block'; }};
+        window.editChapter = (id,idx) => window.selectChapter(id,idx);
+        window.deleteChapter = (id,idx) => { if(confirm('Удалить главу?')){ const book=booksDB.find(b=>b.id===id); if(book&&book.chapters){ book.chapters.splice(idx,1); saveData(); if(currentEditBookId===id) renderAdminPanel(); showAdminMsg('Глава удалена');}}};
+    }
+    function showAdminMsg(msg){ const d=document.getElementById('adminMsg'); if(d){ d.innerText=msg; setTimeout(()=>{if(d)d.innerText='';},2000);} }
+    function closeAdminModal(){ document.getElementById('adminModal').classList.remove('active'); }
+    function openAdminModal(){ document.getElementById('adminModal').classList.add('active'); renderAdminPanel(); }
+
+    let clickCount=0,clickTimer=null;
+    document.getElementById('secretLogo').addEventListener('click',(e)=>{ e.preventDefault(); clickCount++; if(clickTimer) clearTimeout(clickTimer); clickTimer=setTimeout(()=>{clickCount=0;},800); if(clickCount>=10){ clickCount=0; const pwd=prompt('Введите пароль:'); if(pwd==='22291264McDillerDsuZuj') openAdminModal(); else if(pwd!==null) alert('Неверный пароль.'); } });
+    document.getElementById('heroLibraryBtn').onclick = openLibraryPage;
+    document.getElementById('showLibraryBtn').onclick = openLibraryPage;
+    document.getElementById('closeLibraryBtn').onclick = closeLibraryPage;
+    document.getElementById('libSearchBtn').onclick = () => { currentLibSearch = document.getElementById('libSearchInput').value.trim(); currentLibRecIds = []; renderLibraryGrid(); };
+    document.getElementById('libRecommendBtn').onclick = () => { const recs = getRecommendations(3, booksDB); currentLibRecIds = recs.map(r=>r.id); currentLibSearch = ''; renderLibraryGrid(); };
+    document.getElementById('libSearchInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('libSearchBtn').click(); });
+    document.getElementById('closeReader').onclick = () => { document.getElementById('reader').classList.remove('active'); document.body.classList.remove('reader-open'); };
+    document.addEventListener('keydown', e => { if(e.key==='Escape' && document.getElementById('reader').classList.contains('active')){ document.getElementById('reader').classList.remove('active'); document.body.classList.remove('reader-open'); } });
+    for(let i=0;i<40;i++){ const p=document.createElement('div'); p.classList.add('particle'); p.style.left=Math.random()*100+'%'; p.style.width=(Math.random()*3+1)+'px'; p.style.height=p.style.width; p.style.animationDuration=(Math.random()*12+7)+'s'; p.style.animationDelay=(Math.random()*6)+'s'; document.getElementById('particles').appendChild(p); }
+    window.addEventListener('scroll',()=>{ document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50); });
+    document.getElementById('menuBtn').onclick = () => document.getElementById('navLinks').classList.toggle('open');
+    document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
+    const observer = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); }); },{threshold:0.15});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+    loadData();
+</script>
+</body>
+</html>
